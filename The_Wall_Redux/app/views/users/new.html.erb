@@ -1,0 +1,16 @@
+<h2>Sign Up</h2>
+<h4>Already a member? <a href='<%= new_session_path %>'>Sign in!</a></h4>
+
+<% if flash[:error] %>
+	<p class='error'><%= flash[:error] %></p>
+<% elsif flash[:notice] %>
+	<p class='notice'><%= flash[:notice] %></p>
+<% end %>
+
+<%= simple_form_for(@user, html: {class: 'form-horizontal' }) do |f| %>
+  <%= f.input :name %>
+  <%= f.input :email %>
+  <%= f.input :password %>
+  <%= f.input :password_confirmation %>
+  <%= f.submit 'Sign Up', class: 'btn-primary form-button' %>
+<% end %>

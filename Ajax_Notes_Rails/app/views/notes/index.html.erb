@@ -1,0 +1,39 @@
+<html>
+<head>
+	<title>Ajax Notes</title>
+	<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+	<script>
+		$(document).ready(function(){
+			$(document).on('submit', 'form', function(){
+				var form = $(this);
+				$.post(
+					form.attr('action'),
+					form.serialize(),
+					function(data)
+					{
+						//console.log(data.html_data);
+						$('#notes_area').html(data.html_data)
+						$('#title_field').val("")
+					}
+					,"json"
+				);
+				return false;
+			});
+
+			$('form').submit();
+		})
+	</script>
+
+</head>
+<body>
+	<h1>Notes</h1>
+	<form action="notes" method="post">
+		<input name="authenticity_token" value="<%= form_authenticity_token %>" type="hidden">
+	  	<label>Title:
+	    	<input type="text" id='title_field' name="title" />
+	  	</label>
+		<input type="submit" value="Add a Title" />
+	</form>
+
+	<div id='notes_area'></div> 
+</body>

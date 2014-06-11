@@ -1,0 +1,81 @@
+<div class='row'>
+	<div class='col-xs-6'>
+		<h2 class='banner-header'>The Wall</h2>
+		<h4><%= @user.name %>'s page</h4>
+	</div>
+	<div class='col-xs-6'>
+		<p class='text-right'><a href='/signout'>Sign Out</a></p>
+		<p class='text-right'><a href='/users'>All Users</a></p>
+	</div>
+</div>
+
+<% if flash[:error] %>
+	<p class='error'><%= flash[:error] %></p>
+<% elsif flash[:notice] %>
+	<p class='notice'><%= flash[:notice] %></p>
+<% end %>
+
+<h3>Post a message</h3>
+<%= simple_form_for @post, url: '/posts', defaults: { input_html: { class: 'form-control' } }, html: {class: 'form-horizontal' } do |p| %>
+	<%= p.input :user_id, as: :hidden, input_html: { value: @author_id } %>
+	<%= p.input :wall_id, as: :hidden, input_html: { value: @user.id } %>
+	<%= p.input :content %>
+	<%= p.submit 'Post a message', class: 'btn-primary form-button' %>
+<% end %>
+
+<% 	if @posts.length > 0 %>
+<%		@posts.reverse.each{ | post | %>
+		<hr />
+		<div class='msg-header'>
+			<a href='<%= user_path(post.user.id) %>'><%= post.user.name %></a> - <%= post.created_at.localtime.strftime('%l:%M %p, %b %e, %Y') %>
+		</div>
+		<p>	
+			<%= post.content %>
+			<a data-toggle='modal' href='#delMsgModal' post-id='<%= post.id %>' class='delete-post'>Delete</a>
+		</p>
+		<div class='indent-comments'>
+<% 			if post.comments.length > 0 
+				post.comments.each{ | comment | %>
+				<div class='msg-header'>
+					<a href='<%= user_path(comment.user.id) %>'>
+						<%= comment.user.name %>
+					</a>
+					- <%= comment.created_at.localtime.strftime('%l:%M %p, %b %e, %Y') %>
+				</div>
+				<p>	
+					<%= comment.content %>
+					<a data-toggle='modal' href='#delMsgModal' cmd-id='<%= comment.id %>' class='delete-cmt'>Delete</a>
+				</p>
+<%				}
+	 		end		%>
+			<h4>Comment on this post</h4>
+			<%= simple_form_for @comment, url: '/comments', defaults: { input_html: { class: 'form-control' } }, html: {class: 'form-horizontal' } do |p| %>
+				<%= p.input :user_id, as: :hidden, input_html: { value: @author_id } %>
+				<%= p.input :post_id, as: :hidden, input_html: { value: post.id } %>
+				<%= p.input :content %>
+				<%= p.submit 'Post a comment', class: 'btn-primary form-button' %>
+			<% end %>
+		</div>
+<%		}	%>
+<br />
+<% 	end	%>
+
+<div class='modal fade' id='delMsgModal' tabindex='-1' role='dialog' aria-labelledby='myModalLabel' aria-hidden='true'>
+    <div class='modal-dialog'>
+	    <div class='modal-content'>
+	        <div class='modal-header'>
+	            <button type='button' class='close' data-dismiss='modal' aria-hidden='true'>&times;</button>
+	            <h4 class='modal-title'>Remove</h4>
+	        </div>
+	        <div class='modal-body'><h4 class='modal-title'>Are you sure you want to remove this message?  The operation is not reversible.</h4></div>
+	        <div class='modal-footer'>
+				<form action='/' method='post' id='modal-form'>
+	            	<a href='#' class='btn btn-success' data-dismiss='modal'>Cancel</a>
+					<input type='hidden' name='authenticity_token' value='<%= form_authenticity_token %>' />
+					<input type='hidden' name='_method' value='delete' />
+					<input type='submit' class='btn btn-danger' value='Remove' />
+				</form>
+	        </div>
+	    </div>
+    </div>
+</div>
